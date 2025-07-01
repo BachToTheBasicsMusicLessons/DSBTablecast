@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { CameraFeed } from './CameraFeed';
 import { ScoreboardOverlay } from './ScoreboardOverlay';
 
@@ -11,16 +11,16 @@ interface Player {
   score: number;
 }
 
-export const StreamingInterface: React.FC = () => {
+interface StreamingInterfaceProps {
+  role: 'viewer' | 'broadcaster' | 'controller';
+}
+
+export const StreamingInterface: React.FC<StreamingInterfaceProps> = ({ role }) => {
   const { matchId } = useParams();
-  const location = useLocation();
 
-  const pathname = location.pathname;
-  const search = location.search;
-
-  const isController = pathname.startsWith('/controller');
-  const isStreamOnly = pathname.startsWith('/match') && search.includes('stream=true');
-  const isPublicViewer = pathname.startsWith('/match') && !search.includes('stream=true');
+  const isController = role === 'controller';
+  const isBroadcaster = role === 'broadcaster';
+  const isViewer = role === 'viewer';
 
   const [matchType, setMatchType] = useState('APA 8-Ball');
 
@@ -72,8 +72,8 @@ export const StreamingInterface: React.FC = () => {
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-black">
-      {/* Show camera feed ONLY on /match/:matchId?stream=true */}
-      {isStreamOnly && !isController && <CameraFeed active />}
+      {/* Broadcaster only: show camera feed */}
+      {isBroadcaster && <CameraFeed active />}
 
       {/* Scoreboard always visible */}
       <ScoreboardOverlay
