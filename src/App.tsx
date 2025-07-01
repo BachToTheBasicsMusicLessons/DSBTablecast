@@ -1,24 +1,28 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { StreamingInterface } from './components/StreamingInterface';
-import { MatchViewer } from './components/MatchViewer';
-import { StreamOnlyView } from './components/StreamOnlyView';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { StreamingInterface } from './StreamingInterface';
 
-function App() {
+const App: React.FC = () => {
   return (
     <Router>
       <Routes>
-        {/* Controller: Edit scoreboard, view live stream (no camera access) */}
+        {/* Public viewer */}
+        <Route path="/match/:matchId" element={<StreamingInterface />} />
+
+        {/* Broadcaster */}
+        <Route path="/match/:matchId/" element={<StreamingInterface />} />
+
+        {/* Stream-only viewer (broadcaster with ?stream=true) */}
+        <Route path="/match/:matchId/stream" element={<StreamingInterface />} />
+
+        {/* Controller */}
         <Route path="/controller/:matchId" element={<StreamingInterface />} />
 
-        {/* Viewer: Public match page with scoreboard and live stream (no camera access) */}
-        <Route path="/match/:matchId" element={<MatchViewer />} />
-
-        {/* Broadcaster: Opens camera and overlays scoreboard, used by the person streaming */}
-        <Route path="/match/:matchId/stream" element={<StreamOnlyView />} />
+        {/* Redirect unknown routes to a default or 404 */}
+        <Route path="*" element={<Navigate to="/match/sample" />} />
       </Routes>
     </Router>
   );
-}
+};
 
 export default App;
