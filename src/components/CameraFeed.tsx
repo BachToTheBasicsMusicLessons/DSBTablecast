@@ -3,10 +3,10 @@ import { Camera, CameraOff, Settings, RefreshCw } from 'lucide-react';
 
 interface CameraFeedProps {
   onStreamReady?: (stream: MediaStream) => void;
-  enabled?: boolean;
+  active?: boolean;
 }
 
-export const CameraFeed: React.FC<CameraFeedProps> = ({ onStreamReady, enabled = true }) => {
+export const CameraFeed: React.FC<CameraFeedProps> = ({ onStreamReady, active = false }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isStreamActive, setIsStreamActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,9 +21,9 @@ export const CameraFeed: React.FC<CameraFeedProps> = ({ onStreamReady, enabled =
         video: {
           facingMode: 'environment',
           width: { ideal: 1920 },
-          height: { ideal: 1080 },
+          height: { ideal: 1080 }
         },
-        audio: false,
+        audio: false
       });
 
       if (videoRef.current) {
@@ -49,23 +49,19 @@ export const CameraFeed: React.FC<CameraFeedProps> = ({ onStreamReady, enabled =
   };
 
   useEffect(() => {
-    if (!enabled) return;
-
-    startCamera();
+    if (active) {
+      startCamera();
+    }
 
     return () => {
       if (videoRef.current?.srcObject) {
         const stream = videoRef.current.srcObject as MediaStream;
-        stream.getTracks().forEach((track) => track.stop());
+        stream.getTracks().forEach(track => track.stop());
       }
     };
-  }, [enabled]);
+  }, [active]);
 
-  const handleRetry = () => {
-    startCamera();
-  };
-
-  if (!enabled) return null;
+  if (!active) return null;
 
   if (error) {
     return (
@@ -91,7 +87,7 @@ export const CameraFeed: React.FC<CameraFeedProps> = ({ onStreamReady, enabled =
           )}
 
           <button
-            onClick={handleRetry}
+            onClick={startCamera}
             className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
           >
             <RefreshCw className="w-4 h-4 mr-2" />

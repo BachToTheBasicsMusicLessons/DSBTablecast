@@ -15,9 +15,9 @@ export const StreamingInterface: React.FC = () => {
   const { matchId } = useParams();
   const location = useLocation();
 
-  const isBroadcaster = location.search.includes('stream=true');
+  const isStreamOnly = location.search.includes('stream=true');
   const isController = location.pathname.startsWith('/controller');
-  const isPublicViewer = location.pathname.startsWith('/match') && !isBroadcaster;
+  const isMatch = location.pathname.startsWith('/match') && !isStreamOnly;
 
   const [matchType, setMatchType] = useState('APA 8-Ball');
 
@@ -69,10 +69,10 @@ export const StreamingInterface: React.FC = () => {
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-black">
-      {/* Only broadcaster captures video */}
-      {isBroadcaster && <CameraFeed />}
+      {/* Only the MATCH route (broadcaster) should show the camera feed */}
+      {isMatch && <CameraFeed active={true} />}
 
-      {/* Scoreboard always visible */}
+      {/* Scoreboard is always visible */}
       <ScoreboardOverlay
         matchType={matchType}
         playerA={playerA}
