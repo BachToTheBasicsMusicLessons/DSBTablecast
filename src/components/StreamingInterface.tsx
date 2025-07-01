@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation, useMatch } from 'react-router-dom';
 import { CameraFeed } from './CameraFeed';
 import { ScoreboardOverlay } from './ScoreboardOverlay';
 
@@ -11,13 +11,12 @@ interface Player {
   score: number;
 }
 
-export const StreamingInterface: React.FC = () => {
-  const { matchId } = useParams();
-  const location = useLocation();
+interface StreamingInterfaceProps {
+  role: 'broadcaster' | 'viewer' | 'controller';
+}
 
-  const isBroadcaster = location.search.includes('stream=true');
-  const isController = location.pathname.startsWith('/controller');
-  const isPublicViewer = location.pathname.startsWith('/match') && !isBroadcaster;
+export const StreamingInterface: React.FC<StreamingInterfaceProps> = ({ role }) => {
+  const { matchId } = useParams();
 
   const [matchType, setMatchType] = useState('APA 8-Ball');
 
@@ -69,20 +68,20 @@ export const StreamingInterface: React.FC = () => {
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-black">
-      {/* Only broadcaster captures video */}
-      {isBroadcaster && <CameraFeed active />}
+      {/* Camera feed only shown on broadcaster page */}
+      {role === 'broadcaster' && <CameraFeed />}
 
-      {/* Scoreboard always visible */}
+      {/* Scoreboard visible for all roles */}
       <ScoreboardOverlay
         matchType={matchType}
         playerA={playerA}
         playerB={playerB}
         matchScoreA={matchScoreA}
         matchScoreB={matchScoreB}
-        onScoreChange={isController ? handleScoreChange : undefined}
-        onPlayerUpdate={isController ? handlePlayerUpdate : undefined}
-        onMatchScoreUpdate={isController ? handleMatchScoreUpdate : undefined}
-        onMatchTypeUpdate={isController ? handleMatchTypeUpdate : undefined}
+        onScoreChange={role === 'controller' ? handleScoreChange : undefined}
+        onPlayerUpdate={role === 'controller' ? handlePlayerUpdate : undefined}
+        onMatchScoreUpdate={role === 'controller' ? handleMatchScoreUpdate : undefined}
+        onMatchTypeUpdate={role === 'controller' ? handleMatchTypeUpdate : undefined}
       />
     </div>
   );

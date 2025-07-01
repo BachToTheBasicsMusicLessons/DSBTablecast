@@ -6,19 +6,16 @@ const App: React.FC = () => {
   return (
     <Router>
       <Routes>
-        {/* Public viewer */}
-        <Route path="/match/:matchId" element={<StreamingInterface />} />
+        {/* Viewer route (no camera, sees scoreboard and stream) */}
+        <Route path="/match/:matchId" element={<StreamingInterface role="viewer" />} />
 
-        {/* Broadcaster */}
-        <Route path="/match/:matchId/" element={<StreamingInterface />} />
+        {/* Broadcaster route (camera feed active, no stream viewing) */}
+        <Route path="/match/:matchId/stream" element={<StreamingInterface role="broadcaster" />} />
 
-        {/* Stream-only viewer (broadcaster with ?stream=true) */}
-        <Route path="/match/:matchId/stream" element={<StreamingInterface />} />
+        {/* Controller route (scoreboard control, no camera or stream view) */}
+        <Route path="/controller/:matchId" element={<StreamingInterface role="controller" />} />
 
-        {/* Controller */}
-        <Route path="/controller/:matchId" element={<StreamingInterface />} />
-
-        {/* Redirect unknown routes to a default or 404 */}
+        {/* Catch-all route */}
         <Route path="*" element={<Navigate to="/match/sample" />} />
       </Routes>
     </Router>
