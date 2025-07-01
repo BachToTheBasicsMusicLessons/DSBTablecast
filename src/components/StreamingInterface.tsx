@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useParams, useLocation } from 'react-router-dom';
 import { CameraFeed } from './CameraFeed';
 import { ScoreboardOverlay } from './ScoreboardOverlay';
 
@@ -12,8 +12,12 @@ interface Player {
 }
 
 export const StreamingInterface: React.FC = () => {
+  const { matchId } = useParams();
   const location = useLocation();
+
+  const isStreamOnly = location.pathname.includes('/match/') && location.pathname.includes('/stream');
   const isController = location.pathname.startsWith('/controller');
+  const isViewer = location.pathname.startsWith('/match') && !isStreamOnly;
 
   const [matchType, setMatchType] = useState('APA 8-Ball');
 
@@ -65,19 +69,21 @@ export const StreamingInterface: React.FC = () => {
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-black">
-      {isController && <CameraFeed />}
+      {(isController || isStreamOnly) && <CameraFeed />}
 
-      <ScoreboardOverlay
-        matchType={matchType}
-        playerA={playerA}
-        playerB={playerB}
-        matchScoreA={matchScoreA}
-        matchScoreB={matchScoreB}
-        onScoreChange={handleScoreChange}
-        onPlayerUpdate={handlePlayerUpdate}
-        onMatchScoreUpdate={handleMatchScoreUpdate}
-        onMatchTypeUpdate={handleMatchTypeUpdate}
-      />
+      {!isStreamOnly && (
+        <ScoreboardOverlay
+          matchType={matchType}
+          playerA={playerA}
+          playerB={playerB}
+          matchScoreA={matchScoreA}
+          matchScoreB={matchScoreB}
+          onScoreChange={isController ? handleScoreChange : undefined}
+          onPlayerUpdate={isController ? handlePlayerUpdate : undefined}
+          onMatchScoreUpdate={isController ? handleMatchScoreUpdate : undefined}
+          onMatchTypeUpdate={isController ? handleMatchTypeUpdate : undefined}
+        />
+      )}
     </div>
   );
 };
