@@ -8,14 +8,14 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Controller page with camera + editing capabilities */}
+        {/* Controller: Edit scoreboard, view live stream (no camera access) */}
         <Route path="/controller/:matchId" element={<StreamingInterface />} />
 
-        {/* Viewer with camera feed removed */}
+        {/* Viewer: Public match page with scoreboard and live stream (no camera access) */}
         <Route path="/match/:matchId" element={<MatchViewer />} />
 
-        {/* Pure stream (no scoreboard overlay) */}
-        <Route path="/match/:matchId/*" element={<StreamOnlyView />} />
+        {/* Broadcaster: Opens camera and overlays scoreboard, used by the person streaming */}
+        <Route path="/match/:matchId/stream" element={<StreamOnlyView />} />
       </Routes>
     </Router>
   );
