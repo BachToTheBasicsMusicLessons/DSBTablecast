@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import { CameraFeed } from './CameraFeed';
 import { ScoreboardOverlay } from './ScoreboardOverlay';
 
@@ -11,19 +12,21 @@ interface Player {
 }
 
 export const StreamingInterface: React.FC = () => {
-  // TODO: Replace with Supabase real-time data
+  const location = useLocation();
+  const isMatchView = location.pathname.startsWith('/match') && !location.search.includes('stream=true');
+
   const [matchType, setMatchType] = useState('APA 8-Ball');
-  
-  const [player1, setPlayer1] = useState<Player>({
-    id: 'player1',
+
+  const [playerA, setPlayerA] = useState<Player>({
+    id: 'playerA',
     name: 'Player A',
     team: 'Team A',
     skill: 'SL6 (50)',
     score: 0
   });
 
-  const [player2, setPlayer2] = useState<Player>({
-    id: 'player2',
+  const [playerB, setPlayerB] = useState<Player>({
+    id: 'playerB',
     name: 'Player B',
     team: 'Team B',
     skill: 'SL6 (50)',
@@ -33,135 +36,41 @@ export const StreamingInterface: React.FC = () => {
   const [matchScoreA, setMatchScoreA] = useState(0);
   const [matchScoreB, setMatchScoreB] = useState(0);
 
-  // Handle match type changes
-  const handleMatchTypeUpdate = useCallback(async (newType: string) => {
+  const handleMatchTypeUpdate = useCallback((newType: string) => {
     setMatchType(newType);
-    
-    // TODO: Supabase real-time update
-    // await matchService.updateMatchType(currentMatchId, newType);
   }, []);
 
-  // Handle score changes
-  const handleScoreChange = useCallback(async (playerId: string, delta: number) => {
-    if (playerId === 'player1') {
-      const newScore = Math.max(0, player1.score + delta);
-      setPlayer1(prev => ({ ...prev, score: newScore }));
-      
-      // TODO: Supabase real-time update
-      // await matchService.updatePlayerScore(currentMatchId, 'a', newScore);
-    } else if (playerId === 'player2') {
-      const newScore = Math.max(0, player2.score + delta);
-      setPlayer2(prev => ({ ...prev, score: newScore }));
-      
-      // TODO: Supabase real-time update
-      // await matchService.updatePlayerScore(currentMatchId, 'b', newScore);
+  const handleScoreChange = useCallback((playerId: string, delta: number) => {
+    if (playerId === 'playerA') {
+      const newScore = Math.max(0, playerA.score + delta);
+      setPlayerA(prev => ({ ...prev, score: newScore }));
+    } else if (playerId === 'playerB') {
+      const newScore = Math.max(0, playerB.score + delta);
+      setPlayerB(prev => ({ ...prev, score: newScore }));
     }
-  }, [player1.score, player2.score]);
+  }, [playerA.score, playerB.score]);
 
-  // Handle player information updates
-  const handlePlayerUpdate = useCallback(async (playerId: string, updates: Partial<Player>) => {
-    if (playerId === 'player1') {
-      setPlayer1(prev => ({ ...prev, ...updates }));
-      
-      // TODO: Supabase real-time update
-      // await matchService.updatePlayerInfo(currentMatchId, 'a', {
-      //   name: updates.name,
-      //   team: updates.team,
-      //   skill: updates.skill
-      // });
-    } else if (playerId === 'player2') {
-      setPlayer2(prev => ({ ...prev, ...updates }));
-      
-      // TODO: Supabase real-time update
-      // await matchService.updatePlayerInfo(currentMatchId, 'b', {
-      //   name: updates.name,
-      //   team: updates.team,
-      //   skill: updates.skill
-      // });
+  const handlePlayerUpdate = useCallback((playerId: string, updates: Partial<Player>) => {
+    if (playerId === 'playerA') {
+      setPlayerA(prev => ({ ...prev, ...updates }));
+    } else if (playerId === 'playerB') {
+      setPlayerB(prev => ({ ...prev, ...updates }));
     }
   }, []);
 
-  // Handle match score updates
-  const handleMatchScoreUpdate = useCallback(async (scoreA: number, scoreB: number) => {
+  const handleMatchScoreUpdate = useCallback((scoreA: number, scoreB: number) => {
     setMatchScoreA(scoreA);
     setMatchScoreB(scoreB);
-    
-    // TODO: Supabase real-time update
-    // await matchService.updateMatchScore(currentMatchId, scoreA, scoreB);
   }, []);
-
-  // TODO: Load initial game data from Supabase
-  // useEffect(() => {
-  //   const loadGameData = async () => {
-  //     const { data } = await supabase
-  //       .from('matches')
-  //       .select('*')
-  //       .eq('id', currentMatchId)
-  //       .single();
-  //     
-  //     if (data) {
-  //       setMatchType(data.match_type);
-  //       setPlayer1(prev => ({ 
-  //         ...prev, 
-  //         name: data.player_a_name, 
-  //         team: data.player_a_team,
-  //         skill: data.player_a_skill,
-  //         score: data.player_a_score 
-  //       }));
-  //       setPlayer2(prev => ({ 
-  //         ...prev, 
-  //         name: data.player_b_name, 
-  //         team: data.player_b_team,
-  //         skill: data.player_b_skill,
-  //         score: data.player_b_score 
-  //       }));
-  //       setMatchScoreA(data.match_score_a);
-  //       setMatchScoreB(data.match_score_b);
-  //     }
-  //   };
-  //   
-  //   loadGameData();
-  // }, []);
-
-  // TODO: Subscribe to real-time score changes
-  // useEffect(() => {
-  //   const subscription = supabase
-  //     .channel('match-updates')
-  //     .on('postgres_changes', 
-  //       { event: 'UPDATE', schema: 'public', table: 'matches' },
-  //       (payload) => {
-  //         const data = payload.new;
-  //         setMatchType(data.match_type);
-  //         setPlayer1(prev => ({ 
-  //           ...prev, 
-  //           name: data.player_a_name,
-  //           team: data.player_a_team,
-  //           skill: data.player_a_skill,
-  //           score: data.player_a_score 
-  //         }));
-  //         setPlayer2(prev => ({ 
-  //           ...prev, 
-  //           name: data.player_b_name,
-  //           team: data.player_b_team,
-  //           skill: data.player_b_skill,
-  //           score: data.player_b_score 
-  //         }));
-  //         setMatchScoreA(data.match_score_a);
-  //         setMatchScoreB(data.match_score_b);
-  //       }
-  //     )
-  //     .subscribe();
-  //   
-  //   return () => subscription.unsubscribe();
-  // }, []);
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-black">
-      <CameraFeed />
+      {isMatchView && <CameraFeed />}
+
       <ScoreboardOverlay
         matchType={matchType}
-        player1={player1}
-        player2={player2}
+        playerA={playerA}
+        playerB={playerB}
         matchScoreA={matchScoreA}
         matchScoreB={matchScoreB}
         onScoreChange={handleScoreChange}
