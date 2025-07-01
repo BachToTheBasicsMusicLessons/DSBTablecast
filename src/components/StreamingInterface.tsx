@@ -13,7 +13,7 @@ interface Player {
 
 export const StreamingInterface: React.FC = () => {
   const location = useLocation();
-  const isMatchView = location.pathname.startsWith('/match') && !location.search.includes('stream=true');
+  const isController = location.pathname.startsWith('/controller');
 
   const [matchType, setMatchType] = useState('APA 8-Ball');
 
@@ -65,7 +65,7 @@ export const StreamingInterface: React.FC = () => {
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-black">
-      {isMatchView && <CameraFeed />}
+      {isController && <CameraFeed />}
 
       <ScoreboardOverlay
         matchType={matchType}
