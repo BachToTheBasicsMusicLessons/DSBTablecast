@@ -3,9 +3,10 @@ import { Camera, CameraOff, Settings, RefreshCw } from 'lucide-react';
 
 interface CameraFeedProps {
   onStreamReady?: (stream: MediaStream) => void;
+  enabled?: boolean;
 }
 
-export const CameraFeed: React.FC<CameraFeedProps> = ({ onStreamReady }) => {
+export const CameraFeed: React.FC<CameraFeedProps> = ({ onStreamReady, enabled = true }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isStreamActive, setIsStreamActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -15,14 +16,14 @@ export const CameraFeed: React.FC<CameraFeedProps> = ({ onStreamReady }) => {
     try {
       setError(null);
       setPermissionDenied(false);
-      
+
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
-          facingMode: 'environment', // Use back camera on mobile
+          facingMode: 'environment',
           width: { ideal: 1920 },
-          height: { ideal: 1080 }
+          height: { ideal: 1080 },
         },
-        audio: false
+        audio: false,
       });
 
       if (videoRef.current) {
@@ -33,7 +34,7 @@ export const CameraFeed: React.FC<CameraFeedProps> = ({ onStreamReady }) => {
       }
     } catch (err: any) {
       console.error('Camera error:', err);
-      
+
       if (err.name === 'NotAllowedError' || err.message?.includes('Permission dismissed')) {
         setPermissionDenied(true);
         setError('Camera access was denied. Please allow camera access to continue.');
@@ -48,19 +49,23 @@ export const CameraFeed: React.FC<CameraFeedProps> = ({ onStreamReady }) => {
   };
 
   useEffect(() => {
+    if (!enabled) return;
+
     startCamera();
 
     return () => {
       if (videoRef.current?.srcObject) {
         const stream = videoRef.current.srcObject as MediaStream;
-        stream.getTracks().forEach(track => track.stop());
+        stream.getTracks().forEach((track) => track.stop());
       }
     };
-  }, []);
+  }, [enabled]);
 
   const handleRetry = () => {
     startCamera();
   };
+
+  if (!enabled) return null;
 
   if (error) {
     return (
@@ -69,7 +74,7 @@ export const CameraFeed: React.FC<CameraFeedProps> = ({ onStreamReady }) => {
           <CameraOff className="w-16 h-16 mx-auto mb-4 text-gray-400" />
           <p className="text-lg font-semibold mb-2">Camera Unavailable</p>
           <p className="text-gray-300 mb-6">{error}</p>
-          
+
           {permissionDenied && (
             <div className="bg-gray-800 rounded-lg p-4 mb-6 text-left">
               <div className="flex items-center mb-2">
@@ -84,7 +89,7 @@ export const CameraFeed: React.FC<CameraFeedProps> = ({ onStreamReady }) => {
               </ul>
             </div>
           )}
-          
+
           <button
             onClick={handleRetry}
             className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"

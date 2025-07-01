@@ -70,7 +70,7 @@ export const StreamingInterface: React.FC = () => {
   return (
     <div className="relative w-full h-screen overflow-hidden bg-black">
       {/* Camera feed only for viewer or stream-only */}
-      {(isViewer || isStreamOnly) && <CameraFeed />}
+      <CameraFeed enabled={isViewer || isStreamOnly} />
 
       {/* Show scoreboard always */}
       <ScoreboardOverlay
