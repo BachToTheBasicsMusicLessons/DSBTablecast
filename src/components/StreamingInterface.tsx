@@ -15,9 +15,9 @@ export const StreamingInterface: React.FC = () => {
   const { matchId } = useParams();
   const location = useLocation();
 
-  const isStreamOnly = location.pathname.includes('/match/') && location.pathname.includes('/stream');
+  const isStreamOnly = location.pathname.includes('/match/') && location.search.includes('stream=true');
   const isController = location.pathname.startsWith('/controller');
-  const isViewer = location.pathname.startsWith('/match') && !isStreamOnly;
+  const isStreamer = location.pathname.startsWith('/match') && !isStreamOnly;
 
   const [matchType, setMatchType] = useState('APA 8-Ball');
 
@@ -69,7 +69,7 @@ export const StreamingInterface: React.FC = () => {
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-black">
-      {(isController || isStreamOnly) && <CameraFeed />}
+      {isStreamer && <CameraFeed />}
 
       {!isStreamOnly && (
         <ScoreboardOverlay
